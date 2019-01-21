@@ -1,6 +1,6 @@
 
 #### judge request data model
-```
+```json
 {
     "team_id": 103,
     "phase_id": 1,
@@ -16,15 +16,14 @@
             "question_id": 29,
             "question_type": "file_upload",
             "submitted_answer": "<FILE URL>"
-        },
-        ...
+        }
     ]
 }
 ```
 
 
 #### judge report data model
-```
+```json
 {
     "team_id": 103,
     "phase_id": 1,
@@ -38,8 +37,7 @@
         {
             "question_id": 29,
             "score": 0.5
-        },
-        ...
+        }
     ]
 }
 ```
