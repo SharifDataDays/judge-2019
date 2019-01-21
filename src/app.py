@@ -2,15 +2,17 @@ import sys
 from datetime import datetime, timedelta
 from threading import Thread
 
-import configuration as config
-import logger
 import requests
 from flask import Flask, request
+
+import configuration as config
+import logger as logger
 from score_functions import score
 
 app = Flask(__name__)
 
 group_status = {}
+
 
 def test_and_set_active(team_id):
     if team_id not in group_status:
@@ -48,11 +50,10 @@ def handle_request():
             logger.log_error(error_message)
             return error_message, 400
 
-
     submissions = request_data['submissions']
 
     for submission in submissions:
-        for field in config.SUBMISSION_MANDATORY_FILEDS:
+        for field in config.SUBMISSION_MANDATORY_FIELDS:
             if field not in submission:
                 error_message = 'malformed post request data, excepting submission field {}'.format(field)
                 logger.log_error(error_message)
@@ -62,11 +63,11 @@ def handle_request():
 
     if test_and_set_active(team_id):
         logger.log_info('lock acquired for team with team_id {}'.format(team_id))
-        
+
         phase_id = request_data['phase_id']
         trail_id = request_data['trial_id']
         dataset_number = request_data['dataset_number']
-    
+
         process_request(team_id, phase_id, trail_id, dataset_number, submissions)
         logger.log_success(
             'test for team with team_id {} initiated successfully'.format(team_id))
@@ -81,9 +82,10 @@ def process_request(team_id, phase_id, trail_id, dataset_number, submissions):
     thread = Thread(target=worker_function, args=(team_id, phase_id, trail_id, dataset_number, submissions))
     thread.start()
 
+
 def worker_function(team_id, phase_id, trail_id, dataset_number, submissions):
     logger.log_info('scoring submission for team with team_id {}.'.format(team_id))
-    question_scores = worker_score_questions(team_id, phase_id, dataset_number, submissions)
+    question_scores = worker_score_questions(phase_id, dataset_number, submissions)
     logger.log_info('releasing lock for team with team_id {}'.format(team_id))
     deactivate_status(team_id)
     logger.log_info('reporting test results for team with team_id {}, to competition server'.format(team_id))
@@ -91,8 +93,7 @@ def worker_function(team_id, phase_id, trail_id, dataset_number, submissions):
     logger.log_success('test for team with team_id {} finished successfully'.format(team_id))
 
 
-
-def worker_score_questions(team_id, phase_id, dataset_number, submissions):
+def worker_score_questions(phase_id, dataset_number, submissions):
     question_scores = []
 
     for question in submissions:
@@ -111,7 +112,7 @@ def worker_score_questions(team_id, phase_id, dataset_number, submissions):
 
 
 def report_test_results(team_id, phase_id, trail_id, dataset_number, question_scores):
-    jugge_report = {
+    judge_report = {
         'team_id': team_id,
         'phase_id': phase_id,
         'trail_id': trail_id,
@@ -119,11 +120,11 @@ def report_test_results(team_id, phase_id, trail_id, dataset_number, question_sc
         'submissions': question_scores
     }
     logger.log_log('log report for team with team_id {}'.format(team_id))
-    logger.log_log(jugge_report)
+    logger.log_log(judge_report)
 
     requests.post(
         'http://{}:{}/{}'.format(config.REPORT_SERVER_HOST, config.REPORT_SERVER_PORT, config.REPORT_SERVER_PATH),
-        jugge_report)
+        judge_report)
 
 
 def runserver(port=config.JUDGE_SERVER_PORT):

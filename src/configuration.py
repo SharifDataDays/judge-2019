@@ -10,9 +10,9 @@ REPORT_SERVER_HOST = '<IP ADDRESS OF TARGET REPORT SERVER>'
 REPORT_SERVER_PORT = 80
 REPORT_SERVER_PATH = 'contest/jury/judge/automated/'
 
-
 JUDGE_MANDATORY_REQUEST_FIELDS = ['team_id', 'phase_id', 'trial_id', 'dataset_number', 'submissions']
-SUBMISSION_MANDATORY_FILEDS = ['question_id', 'question_type', 'submitted_answer']
+SUBMISSION_MANDATORY_FIELDS = ['question_id', 'question_type', 'submitted_answer']
+
 
 class QuestionType(Enum):
     MULTIPLE_CHOICE = "multiple_choice"
@@ -20,7 +20,9 @@ class QuestionType(Enum):
     TRUE_FALSE = "true_false"
     SINGLE_ANSWER = "single_answer"
     MULTIPLE_ANSWER = "multiple_answer"
-    
+
     @classmethod
     def list_types(cls):
         return list(cls._member_map_.keys())
+
+
