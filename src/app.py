@@ -59,6 +59,11 @@ def handle_request():
                 logger.log_error(error_message)
                 return error_message, 400
 
+        if submission['question_type'] not in config.QuestionType.list_types():
+            error_message = 'malformed post request data, invalid question type: {}'.format(submission['question_type'])
+            logger.log_error(error_message)
+            return error_message, 400
+
     team_id = request_data['team_id']
 
     if test_and_set_active(team_id):
