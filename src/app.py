@@ -1,9 +1,6 @@
-import pickle as pk
 import sys
-from ast import literal_eval
 from datetime import datetime, timedelta
 from threading import Thread
-from urllib.request import urlopen
 
 import configuration as config
 import logger
