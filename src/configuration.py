@@ -23,6 +23,4 @@ class QuestionType(Enum):
 
     @classmethod
     def list_types(cls):
-        return list(cls._member_map_.keys())
-
-
+        return [x.lower() for x in list(cls._member_map_.keys())]

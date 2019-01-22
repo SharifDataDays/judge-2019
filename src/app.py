@@ -1,3 +1,4 @@
+import json
 import sys
 from datetime import datetime, timedelta
 from threading import Thread
@@ -42,7 +43,7 @@ def deactivate_status(team_id):
 
 @app.route('/', methods=['GET', 'POST'])
 def handle_request():
-    request_data = request.form
+    request_data = request.get_json()
 
     for field in config.JUDGE_MANDATORY_REQUEST_FIELDS:
         if field not in request_data:
@@ -129,7 +130,7 @@ def report_test_results(team_id, phase_id, trail_id, dataset_number, question_sc
 
     requests.post(
         'http://{}:{}/{}'.format(config.REPORT_SERVER_HOST, config.REPORT_SERVER_PORT, config.REPORT_SERVER_PATH),
-        judge_report)
+        json=json.dumps(judge_report))
 
 
 def runserver(port=config.JUDGE_SERVER_PORT):
