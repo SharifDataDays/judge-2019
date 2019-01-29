@@ -16,8 +16,8 @@ def score_file_upload(submitted_answer, real_answer):
     pass
 
 
-def score_true_false(submitted_answer, real_answer):
-    pass
+# def score_true_false(submitted_answer, real_answer):
+#     pass
 
 
 def score_single_answer(submitted_answer, real_answer):
@@ -28,10 +28,25 @@ def score_multiple_answer(submitted_answer, real_answer):
     pass
 
 
+def score_single_suffiient_answer(submitted_answer, real_answer):
+    pass
+
+
+def score_single_number_answer(submitted_answer, real_answer):
+    pass
+
+
+def score_interval_number_answer(submitted_answer, real_answer):
+    pass
+
+
 FUNCTION_MAP = {
     Qt.MULTIPLE_CHOICE.value: score_multiple_choice,
     Qt.FILE_UPLOAD.value: score_file_upload,
-    Qt.TRUE_FALSE.value: score_true_false,
+    # Qt.TRUE_FALSE.value: score_true_false,
     Qt.SINGLE_ANSWER.value: score_single_answer,
     Qt.MULTIPLE_ANSWER.value: score_multiple_answer,
+    Qt.SINGLE_SUFFICIENT_ANSWER: score_single_sufficient_answer,
+    Qt.SINGLE_NUMBER.value: score_single_number_answer,
+    Qt.INTERVAL_NUMBER.value: score_interval_number_answer,
 }
