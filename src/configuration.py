@@ -17,9 +17,11 @@ SUBMISSION_MANDATORY_FIELDS = ['question_id', 'question_type', 'submitted_answer
 class QuestionType(Enum):
     MULTIPLE_CHOICE = "multiple_choice"
     FILE_UPLOAD = "file_upload"
-    TRUE_FALSE = "true_false"
     SINGLE_ANSWER = "single_answer"
     MULTIPLE_ANSWER = "multiple_answer"
+    SINGLE_SUFFICIENT_ANSWER = "single_sufficient_answer"
+    SINGLE_NUMBER = "single_number"
+    INTERVAL_NUMBER = "interval_number"
 
     @classmethod
     def list_types(cls):

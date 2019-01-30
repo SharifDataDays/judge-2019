@@ -91,7 +91,7 @@ def process_request(team_id, phase_id, trail_id, dataset_number, submissions):
 
 def worker_function(team_id, phase_id, trail_id, dataset_number, submissions):
     logger.log_info('scoring submission for team with team_id {}.'.format(team_id))
-    question_scores = worker_score_questions(phase_id, dataset_number, submissions)
+    question_scores = worker_score_questions(team_id, phase_id, dataset_number, submissions)
     logger.log_info('releasing lock for team with team_id {}'.format(team_id))
     deactivate_status(team_id)
     logger.log_info('reporting test results for team with team_id {}, to competition server'.format(team_id))
@@ -99,7 +99,7 @@ def worker_function(team_id, phase_id, trail_id, dataset_number, submissions):
     logger.log_success('test for team with team_id {} finished successfully'.format(team_id))
 
 
-def worker_score_questions(phase_id, dataset_number, submissions):
+def worker_score_questions(team_id, phase_id, dataset_number, submissions):
     question_scores = []
 
     for question in submissions:
@@ -107,7 +107,7 @@ def worker_score_questions(phase_id, dataset_number, submissions):
         question_type = question['question_type']
         submitted_answer = question['submitted_answer']
 
-        question_score = score(question_id, phase_id, dataset_number, question_type, submitted_answer)
+        question_score = score(team_id, question_id, phase_id, dataset_number, question_type, submitted_answer)
 
         question_scores.append({
             'question_id': question_id,
