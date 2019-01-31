@@ -1,13 +1,21 @@
 from configuration import QuestionType as Qt
 import logger
+import json
+import configuration as config
 
 import random
 
 # FIXME !WORK IN PROGRESS!
 
+answers_dict = None
+
 def get_question_result_from_db(team_id, question_id, question_type):
+    global answers_dict
     logger.log_info("getting question answers from db", team_id, question_id)
-    return 1
+    if answers_dict is None:
+        answers_dict = json.load(config.ANSWERS_FILE_PATH)
+    
+    return answers_dict[question_id]
 
 def score(team_id, question_id, phase_id, dataset_number, question_type, submitted_answer):
     logger.log_info("judging", team_id, question_id, question_type)

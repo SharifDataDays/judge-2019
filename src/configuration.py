@@ -13,6 +13,8 @@ REPORT_SERVER_PATH = 'dsvfghjsehtdryjfuihlxdfgchjkl/'
 JUDGE_MANDATORY_REQUEST_FIELDS = ['team_id', 'phase_id', 'trial_id', 'dataset_number', 'submissions']
 SUBMISSION_MANDATORY_FIELDS = ['question_id', 'question_type', 'submitted_answer']
 
+ANSWERS_FILE_PATH = '<ANSWERS_FILE_PATH>'
+
 
 class QuestionType(Enum):
     MULTIPLE_CHOICE = "multiple_choice"
