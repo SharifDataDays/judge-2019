@@ -15,7 +15,7 @@ def remove_brand(arr):
     @param how many of these mini test sets do we want?
     @param do the test sets need to be distinct?
 '''
-def small_test_generation(size_of_test_samples=10, number_of_samples=10, distinct=True):
+def small_test_generation(size_of_test_samples=1000, number_of_samples=10000, distinct=True):
     test_data_file_name = sys.argv[1]
     read_file = open(test_data_file_name)
     csv_read = csv.reader(read_file)
@@ -28,9 +28,11 @@ def small_test_generation(size_of_test_samples=10, number_of_samples=10, distinc
 
     for i in range(number_of_samples):
         for _ in range(size_of_test_samples):
-            r = random.randint(0, row_count-1)
-            if r not in rands[i]:
-                rands[i].append(r)
+            while True:
+                r = random.randint(0, row_count-1)
+                if r not in rands[i]:
+                    break
+            rands[i].append(r)
 
     # read_file.seek(0)
     # for i, row in enumerate(csv_read):
