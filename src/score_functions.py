@@ -13,9 +13,10 @@ def get_question_result_from_db(team_id, question_id, question_type):
     global answers_dict
     logger.log_info("getting question answers from db", team_id, question_id)
     if answers_dict is None:
-        answers_dict = json.load(config.ANSWERS_FILE_PATH)
+        with open(config.ANSWERS_FILE_PATH) as f:
+            answers_dict = json.load(f)
     
-    return answers_dict[question_id]
+    return answers_dict[str(question_id)]
 
 def score(team_id, question_id, phase_id, dataset_number, question_type, submitted_answer):
     logger.log_info("judging", team_id, question_id, question_type)
@@ -36,7 +37,7 @@ def score_file_upload(team_id, submitted_answer, real_answer):
     for line in submitted_categories:
         if line.strip() == '':
             continue
-        tidy_submitted_categories.append(line.strip().tolower())
+        tidy_submitted_categories.append(line.strip().lower())
 
     with open(real_answer, mode='r') as read_file:
         real_categories = read_file.readlines()
@@ -45,7 +46,7 @@ def score_file_upload(team_id, submitted_answer, real_answer):
     for line in real_categories:
         if line.strip() == '':
             continue
-        tidy_real_categories.append(line.strip().tolower())
+        tidy_real_categories.append(line.strip().lower())
 
     if len(tidy_real_categories) != len(tidy_submitted_categories):
         logger.log_warn("invalid number of categories", team_id)
@@ -60,8 +61,8 @@ def score_file_upload(team_id, submitted_answer, real_answer):
         return correct_count / total_count
 
 def score_single_answer(team_id, submitted_answer, real_answer):
-    submitted_answer = submitted_answer.trim().lower()
-    real_answer = real_answer.trim().lower()
+    submitted_answer = submitted_answer.strip().lower()
+    real_answer = real_answer.strip().lower()
     result = 0.0
     if submitted_answer == real_answer:
         result = 1.0
@@ -70,11 +71,11 @@ def score_single_answer(team_id, submitted_answer, real_answer):
 
 
 def score_multiple_answer(team_id, submitted_answer, real_answer):
-    submitted_answer = submitted_answer.trim().split(',')
-    submitted_answer = [x.trim().tolower() for x in submitted_answer]
+    submitted_answer = submitted_answer.strip().split(',')
+    submitted_answer = [x.strip().lower() for x in submitted_answer]
 
-    real_answer = real_answer.trim().split(',')
-    real_answer = [x.trim().tolower() for x in real_answer]
+    real_answer = real_answer.strip().split(',')
+    real_answer = [x.strip().lower() for x in real_answer]
 
     real_answer_count = len(real_answer)
     correct_answer_count = len(set(real_answer).intersection(set(submitted_answer)))
@@ -88,8 +89,8 @@ def score_single_sufficient_answer(team_id, submitted_answer, real_answer):
 
 
 def score_single_number(team_id, submitted_answer, real_answer):
-    submitted_answer = float(submitted_answer.trim())
-    real_answer = float(real_answer.trim())
+    submitted_answer = float(submitted_answer.strip())
+    real_answer = float(real_answer.strip())
     
     result = 0.0
     if submitted_answer == real_answer:
@@ -99,9 +100,9 @@ def score_single_number(team_id, submitted_answer, real_answer):
 
 
 def score_interval_number(team_id, submitted_answer, real_answer):
-    submitted_answer = float(submitted_answer.trim())
+    submitted_answer = float(submitted_answer.strip())
 
-    upper_bound, lower_bound = [float(x.trim()) for x in real_answer.trim.split(',')]
+    upper_bound, lower_bound = [float(x.strip()) for x in real_answer.strip.split(',')]
 
     result = 0.0
     if lower_bound <= submitted_answer <= upper_bound:
