@@ -1,6 +1,7 @@
 from configuration import QuestionType as Qt
 import logger
 
+import random
 
 # FIXME !WORK IN PROGRESS!
 
@@ -10,6 +11,8 @@ def get_question_result_from_db(team_id, question_id, question_type):
 
 def score(team_id, question_id, phase_id, dataset_number, question_type, submitted_answer):
     logger.log_info("judging", team_id, question_id, question_type)
+    logger.log_warn("random")
+    return(random.randint(0, 100))
     real_answer = get_question_result_from_db(team_id, question_id, question_type)
 
     # submitted_answer and real_answer are strings retrieved from db and request without modification
@@ -17,7 +20,7 @@ def score(team_id, question_id, phase_id, dataset_number, question_type, submitt
 
 
 def score_multiple_choice(team_id, submitted_answer, real_answer):
-    return score_multiple_choice(team_id, submitted_answer, real_answer)
+    return score_single_answer(team_id, submitted_answer, real_answer)
 
 def score_file_upload(team_id, submitted_answer, real_answer):
     with open(submitted_answer, mode='r') as read_file:

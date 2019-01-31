@@ -71,10 +71,10 @@ def handle_request():
         logger.log_info('lock acquired for team with team_id {}'.format(team_id))
 
         phase_id = request_data['phase_id']
-        trail_id = request_data['trial_id']
+        trial_id = request_data['trial_id']
         dataset_number = request_data['dataset_number']
 
-        process_request(team_id, phase_id, trail_id, dataset_number, submissions)
+        process_request(team_id, phase_id, trial_id, dataset_number, submissions)
         logger.log_success(
             'test for team with team_id {} initiated successfully'.format(team_id))
         return "success - test initiated", 200
@@ -84,18 +84,18 @@ def handle_request():
         return "error - existing test in progress", 406
 
 
-def process_request(team_id, phase_id, trail_id, dataset_number, submissions):
-    thread = Thread(target=worker_function, args=(team_id, phase_id, trail_id, dataset_number, submissions))
+def process_request(team_id, phase_id, trial_id, dataset_number, submissions):
+    thread = Thread(target=worker_function, args=(team_id, phase_id, trial_id, dataset_number, submissions))
     thread.start()
 
 
-def worker_function(team_id, phase_id, trail_id, dataset_number, submissions):
+def worker_function(team_id, phase_id, trial_id, dataset_number, submissions):
     logger.log_info('scoring submission for team with team_id {}.'.format(team_id))
     question_scores = worker_score_questions(team_id, phase_id, dataset_number, submissions)
     logger.log_info('releasing lock for team with team_id {}'.format(team_id))
     deactivate_status(team_id)
     logger.log_info('reporting test results for team with team_id {}, to competition server'.format(team_id))
-    report_test_results(team_id, phase_id, trail_id, dataset_number, question_scores)
+    report_test_results(team_id, phase_id, trial_id, dataset_number, question_scores)
     logger.log_success('test for team with team_id {} finished successfully'.format(team_id))
 
 
@@ -117,11 +117,11 @@ def worker_score_questions(team_id, phase_id, dataset_number, submissions):
     return question_scores
 
 
-def report_test_results(team_id, phase_id, trail_id, dataset_number, question_scores):
+def report_test_results(team_id, phase_id, trial_id, dataset_number, question_scores):
     judge_report = {
         'team_id': team_id,
         'phase_id': phase_id,
-        'trail_id': trail_id,
+        'trial_id': trial_id,
         'dataset_number': dataset_number,
         'submissions': question_scores
     }
@@ -130,7 +130,7 @@ def report_test_results(team_id, phase_id, trail_id, dataset_number, question_sc
 
     requests.post(
         'http://{}:{}/{}'.format(config.REPORT_SERVER_HOST, config.REPORT_SERVER_PORT, config.REPORT_SERVER_PATH),
-        json=json.dumps(judge_report))
+        json=judge_report)
 
 
 def runserver(port=config.JUDGE_SERVER_PORT):
