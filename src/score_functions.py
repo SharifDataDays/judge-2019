@@ -101,6 +101,18 @@ def score_interval_number(team_id, submitted_answer, real_answer):
     return result
 
 
+def score_single_suffiient_answer(submitted_answer, real_answer):
+    pass
+
+
+def score_single_number_answer(submitted_answer, real_answer):
+    pass
+
+
+def score_interval_number_answer(submitted_answer, real_answer):
+    pass
+
+
 FUNCTION_MAP = {
     Qt.MULTIPLE_CHOICE.value: score_multiple_choice,
     Qt.FILE_UPLOAD.value: score_file_upload,
