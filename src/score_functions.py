@@ -63,6 +63,7 @@ def score_file_upload(team_id, submitted_answer, real_answer):
 def score_single_answer(team_id, submitted_answer, real_answer):
     submitted_answer = submitted_answer.strip().lower()
     real_answer = real_answer.strip().lower()
+    print('\033[92m"{}" "{}"\033[0m'.format(submitted_answer, real_answer))
     result = 0.0
     if submitted_answer == real_answer:
         result = 1.0
@@ -71,10 +72,10 @@ def score_single_answer(team_id, submitted_answer, real_answer):
 
 
 def score_multiple_answer(team_id, submitted_answer, real_answer):
-    submitted_answer = submitted_answer.strip().split(',')
+    submitted_answer = submitted_answer.strip().split('$')
     submitted_answer = [x.strip().lower() for x in submitted_answer]
 
-    real_answer = real_answer.strip().split(',')
+    real_answer = real_answer.strip().split('$')
     real_answer = [x.strip().lower() for x in real_answer]
 
     real_answer_count = len(real_answer)
@@ -102,7 +103,7 @@ def score_single_number(team_id, submitted_answer, real_answer):
 def score_interval_number(team_id, submitted_answer, real_answer):
     submitted_answer = float(submitted_answer.strip())
 
-    upper_bound, lower_bound = [float(x.strip()) for x in real_answer.strip.split(',')]
+    upper_bound, lower_bound = [float(x.strip()) for x in real_answer.strip().split('$')]
 
     result = 0.0
     if lower_bound <= submitted_answer <= upper_bound:

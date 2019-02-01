@@ -43,6 +43,13 @@ def deactivate_status(team_id):
 
 @app.route('/', methods=['GET', 'POST'])
 def handle_request():
+    print("AAAAAAAAAAAAAAAAAAA")
+    print(request.__dict__)
+    print("BBBBBBBBBBBBBBBBBBB")
+    print(request.get_json())
+    print("CCCCCCCCCCCCCCCCCCC")
+    print(str(request.get_json()))
+
     request_data = request.get_json()
 
     for field in config.JUDGE_MANDATORY_REQUEST_FIELDS:
