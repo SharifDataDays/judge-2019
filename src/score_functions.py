@@ -90,7 +90,12 @@ def score_single_sufficient_answer(team_id, submitted_answer, real_answer):
 
 
 def score_single_number(team_id, submitted_answer, real_answer):
-    submitted_answer = float(submitted_answer.strip())
+    try:
+        submitted_answer = float(submitted_answer.strip())
+    except ValueError:
+        logger.log_warn("invalid float response", team_id)
+        return 0.0
+
     real_answer = float(real_answer.strip())
     
     result = 0.0
@@ -101,9 +106,15 @@ def score_single_number(team_id, submitted_answer, real_answer):
 
 
 def score_interval_number(team_id, submitted_answer, real_answer):
-    submitted_answer = float(submitted_answer.strip())
+    try:
+        submitted_answer = float(submitted_answer.strip())
+    except ValueError:
+        logger.log_warn("invalid float response", team_id)
+        return 0.0
 
-    upper_bound, lower_bound = [float(x.strip()) for x in real_answer.strip().split('$')]
+    lower_bound, upper_bound = [float(x.strip()) for x in real_answer.strip().split('$')]
+    #if lower_bound > upper_bound:
+    #     lower_bound, upper_bound = upper_bound, lower_bound
 
     result = 0.0
     if lower_bound <= submitted_answer <= upper_bound:

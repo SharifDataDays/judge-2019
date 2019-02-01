@@ -12,35 +12,6 @@ from score_functions import score
 
 app = Flask(__name__)
 
-group_status = {}
-
-
-def test_and_set_active(team_id):
-    if team_id not in group_status:
-        group_status[team_id] = {
-            'test_active': False,
-            'test_count': 0,
-            'last_run': None,
-        }
-
-    if not group_status[team_id]['test_active']:
-        group_status[team_id]['test_active'] = True
-        group_status[team_id]['last_run'] = datetime.now()
-        group_status[team_id]['test_count'] += 1
-        return True
-    elif datetime.now() - group_status[team_id]['last_run'] > timedelta(seconds=config.RUN_TIMEOUT_S):
-        logger.log_info('releasing and reacquiring lock for team_id', team_id, 'due to run timeout')
-        group_status[team_id]['last_run'] = datetime.now()
-        group_status[team_id]['test_count'] += 1
-        return True
-
-    return False
-
-
-def deactivate_status(team_id):
-    group_status[team_id]['test_active'] = False
-
-
 @app.route('/', methods=['GET', 'POST'])
 def handle_request():
     print("AAAAAAAAAAAAAAAAAAA")
@@ -74,21 +45,16 @@ def handle_request():
 
     team_id = request_data['team_id']
 
-    if test_and_set_active(team_id):
-        logger.log_info('lock acquired for team with team_id {}'.format(team_id))
+    logger.log_info('lock acquired for team with team_id {}'.format(team_id))
 
-        phase_id = request_data['phase_id']
-        trial_id = request_data['trial_id']
-        dataset_number = request_data['dataset_number']
+    phase_id = request_data['phase_id']
+    trial_id = request_data['trial_id']
+    dataset_number = request_data['dataset_number']
 
-        process_request(team_id, phase_id, trial_id, dataset_number, submissions)
-        logger.log_success(
-            'test for team with team_id {} initiated successfully'.format(team_id))
-        return "success - test initiated", 200
-    else:
-        logger.log_error(
-            'another test for team with team_id {} is in progress'.format(team_id))
-        return "error - existing test in progress", 406
+    process_request(team_id, phase_id, trial_id, dataset_number, submissions)
+    logger.log_success(
+        'test for team with team_id {} initiated successfully'.format(team_id))
+    return "success - test initiated", 200
 
 
 def process_request(team_id, phase_id, trial_id, dataset_number, submissions):
@@ -99,8 +65,6 @@ def process_request(team_id, phase_id, trial_id, dataset_number, submissions):
 def worker_function(team_id, phase_id, trial_id, dataset_number, submissions):
     logger.log_info('scoring submission for team with team_id {}.'.format(team_id))
     question_scores = worker_score_questions(team_id, phase_id, dataset_number, submissions)
-    logger.log_info('releasing lock for team with team_id {}'.format(team_id))
-    deactivate_status(team_id)
     logger.log_info('reporting test results for team with team_id {}, to competition server'.format(team_id))
     report_test_results(team_id, phase_id, trial_id, dataset_number, question_scores)
     logger.log_success('test for team with team_id {} finished successfully'.format(team_id))
