@@ -103,7 +103,9 @@ def score_single_number(team_id, submitted_answer, real_answer):
 def score_interval_number(team_id, submitted_answer, real_answer):
     submitted_answer = float(submitted_answer.strip())
 
-    upper_bound, lower_bound = [float(x.strip()) for x in real_answer.strip().split('$')]
+    lower_bound, upper_bound = [float(x.strip()) for x in real_answer.strip().split('$')]
+    #if lower_bound > upper_bound:
+    #     lower_bound, upper_bound = upper_bound, lower_bound
 
     result = 0.0
     if lower_bound <= submitted_answer <= upper_bound:
