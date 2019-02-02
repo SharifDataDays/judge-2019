@@ -15,7 +15,7 @@ def get_question_result_from_db(team_id, question_id, question_type):
     if answers_dict is None:
         with open(config.ANSWERS_FILE_PATH) as f:
             answers_dict = json.load(f)
-    
+
     return answers_dict[str(question_id)]
 
 def score(team_id, question_id, phase_id, dataset_number, question_type, submitted_answer):
