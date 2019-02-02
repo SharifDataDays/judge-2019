@@ -15,7 +15,8 @@ def get_question_result_from_db(team_id, question_id, question_type):
     if answers_dict is None:
         with open(config.ANSWERS_FILE_PATH) as f:
             answers_dict = json.load(f)
-
+    logger.log_info("got question answers from db", team_id, question_id)
+    
     return answers_dict[str(question_id)]
 
 def score(team_id, question_id, phase_id, dataset_number, question_type, submitted_answer):
@@ -23,8 +24,10 @@ def score(team_id, question_id, phase_id, dataset_number, question_type, submitt
     real_answer = get_question_result_from_db(team_id, question_id, question_type)
 
     # submitted_answer and real_answer are strings retrieved from db and request without modification
-    return FUNCTION_MAP[question_type](team_id, submitted_answer, real_answer)
+    ret = FUNCTION_MAP[question_type](team_id, submitted_answer, real_answer)
 
+    logger.log_info("Answer checked", team_id, question_id)
+    return ret
 
 def score_multiple_choice(team_id, submitted_answer, real_answer):
     return score_single_answer(team_id, submitted_answer, real_answer)
@@ -90,18 +93,22 @@ def score_single_sufficient_answer(team_id, submitted_answer, real_answer):
 
 
 def score_single_number(team_id, submitted_answer, real_answer):
+    logger.log_info("entered score single number", team_id)
     try:
         submitted_answer = float(submitted_answer.strip())
     except ValueError:
         logger.log_warn("invalid float response", team_id)
         return 0.0
 
-    real_answer = float(real_answer.strip())
+    logger.log_info("calculating real answer", team_id)
+    logger.log_info("submitted_answer is {}, real answer is {}".format(submitted_answer, real_answer), team_id);
+    real_answer = float(real_answer)
     
     result = 0.0
     if submitted_answer == real_answer:
         result = 1.0
 
+    logger.log_info("result evaluated", team_id)
     return result
 
 

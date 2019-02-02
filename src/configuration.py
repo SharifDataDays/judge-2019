@@ -13,11 +13,7 @@ REPORT_SERVER_PATH = 'dsvfghjsehtdryjfuihlxdfgchjkl/'
 JUDGE_MANDATORY_REQUEST_FIELDS = ['team_id', 'phase_id', 'trial_id', 'dataset_number', 'submissions']
 SUBMISSION_MANDATORY_FIELDS = ['question_id', 'question_type', 'submitted_answer']
 
-<<<<<<< HEAD
-ANSWERS_FILE_PATH = '/home/datadays/answer.json'
-=======
-ANSWERS_FILE_PATH = '/home/mrtaalebi/answer_json.json'
->>>>>>> 7eaf188f0cdc44d516d3fdef84e1fdeaa48cc842
+ANSWERS_FILE_PATH = '/home/datadays/answer_json.json'
 
 
 class QuestionType(Enum):
