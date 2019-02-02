@@ -100,7 +100,7 @@ def report_test_results(team_id, phase_id, trial_id, dataset_number, question_sc
     logger.log_log(judge_report)
 
     requests.post(
-        'https://{}:{}/{}'.format(config.REPORT_SERVER_HOST, config.REPORT_SERVER_PORT, config.REPORT_SERVER_PATH),
+        'https://{}/{}'.format(config.REPORT_SERVER_HOST, config.REPORT_SERVER_PATH),
         json=judge_report)
 
 
