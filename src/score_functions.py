@@ -38,8 +38,6 @@ def score_file_upload(team_id, submitted_answer, real_answer):
 
     tidy_submitted_categories = []
     for line in submitted_categories:
-        if line.strip() == '':
-            continue
         tidy_submitted_categories.append(line.strip().lower())
 
     with open(real_answer, mode='r') as read_file:
@@ -47,12 +45,10 @@ def score_file_upload(team_id, submitted_answer, real_answer):
 
     tidy_real_categories = []
     for line in real_categories:
-        if line.strip() == '':
-            continue
         tidy_real_categories.append(line.strip().lower())
 
-    if len(tidy_real_categories) != len(tidy_submitted_categories):
-        logger.log_warn("invalid number of categories", team_id)
+    if len(tidy_real_categories) > len(tidy_submitted_categories):
+        logger.log_warn("not enough lines in submission", team_id)
         return 0.0
     else:
         total_count = len(tidy_real_categories)
