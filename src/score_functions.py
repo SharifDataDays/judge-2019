@@ -2,7 +2,7 @@ from configuration import QuestionType as Qt
 import logger
 import json
 import configuration as config
-from from chardet import detect
+from chardet import detect
 
 import random
 
