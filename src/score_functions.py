@@ -2,6 +2,7 @@ from configuration import QuestionType as Qt
 import logger
 import json
 import configuration as config
+from from chardet import detect
 
 import random
 
@@ -33,14 +34,21 @@ def score_multiple_choice(team_id, submitted_answer, real_answer):
     return score_single_answer(team_id, submitted_answer, real_answer)
 
 def score_file_upload(team_id, submitted_answer, real_answer):
-    with open(submitted_answer, mode='r') as read_file:
+
+    with open(submitted_answer, mode='rb') as binary_read_file:
+        file_encoding = detect(binary_read_file.read())
+
+    with open(submitted_answer, mode=, encoding=file_encoding['encoding']) as read_file:
         submitted_categories = read_file.readlines()
 
     tidy_submitted_categories = []
     for line in submitted_categories:
         tidy_submitted_categories.append(line.strip().lower())
 
-    with open(real_answer, mode='r') as read_file:
+    with open(real_answer, mode='rb') as binary_read_file:
+        answer_file_encoding = detect(binary_read_file.read())
+
+    with open(real_answer, encoding=answer_file_encoding['encoding']) as read_file:
         real_categories = read_file.readlines()
 
     tidy_real_categories = []
