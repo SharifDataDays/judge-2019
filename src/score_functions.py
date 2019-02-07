@@ -38,7 +38,7 @@ def score_file_upload(team_id, submitted_answer, real_answer):
     with open(submitted_answer, mode='rb') as binary_read_file:
         file_encoding = detect(binary_read_file.read())
 
-    with open(submitted_answer, mode=, encoding=file_encoding['encoding']) as read_file:
+    with open(submitted_answer, encoding=file_encoding['encoding']) as read_file:
         submitted_categories = read_file.readlines()
 
     tidy_submitted_categories = []
