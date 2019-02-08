@@ -29,12 +29,18 @@ def score(team_id, question_id, phase_id, dataset_number, question_type, submitt
     logger.log_info("Answer checked", team_id, question_id)
     return ret
 
+
 def score_multiple_choice(team_id, submitted_answer, real_answer):
     return score_single_answer(team_id, submitted_answer, real_answer)
 
+
 def score_file_upload(team_id, submitted_answer, real_answer):
-    with open(submitted_answer, mode='r') as read_file:
-        submitted_categories = read_file.readlines()
+    try:
+        with open(submitted_answer, mode='r') as read_file:
+            submitted_categories = read_file.readlines()
+    except:
+        logger.log_error('failed to open file for team_id {}'.format(team_id))
+        return
 
     tidy_submitted_categories = []
     for line in submitted_categories:

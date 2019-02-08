@@ -15,6 +15,11 @@ SUBMISSION_MANDATORY_FIELDS = ['question_id', 'question_type', 'submitted_answer
 
 ANSWERS_FILE_PATH = '/home/datadays/answer_json.json'
 
+try:
+#    from local_conf import *
+    print('local_conf imported {}'.format(REPORT_SERVER_HOST))
+except:
+    print('local_conf not found')
 
 class QuestionType(Enum):
     MULTIPLE_CHOICE = "multiple_choice"
