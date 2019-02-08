@@ -23,14 +23,18 @@ def get_question_result_from_db(team_id, question_id, question_type):
 
 
 def score(team_id, question_id, phase_id, dataset_number, question_type, submitted_answer):
-    logger.log_info("judging", team_id, question_id, question_type)
-    real_answer = get_question_result_from_db(team_id, question_id, question_type)
+    try:
+        logger.log_info("judging", team_id, question_id, question_type)
+        real_answer = get_question_result_from_db(team_id, question_id, question_type)
 
-    # submitted_answer and real_answer are strings retrieved from db and request without modification
-    ret = FUNCTION_MAP[question_type](team_id, submitted_answer, real_answer)
+        # submitted_answer and real_answer are strings retrieved from db and request without modification
+        ret = FUNCTION_MAP[question_type](team_id, submitted_answer, real_answer)
 
-    logger.log_info("Answer checked", team_id, question_id)
-    return ret
+        logger.log_info("Answer checked", team_id, question_id)
+        return ret
+    except:
+        logger.log_error("score_function_error", team_id, question_id, question_type)
+        return 0
 
 
 def score_multiple_choice(team_id, submitted_answer, real_answer):
