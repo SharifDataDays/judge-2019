@@ -2,12 +2,14 @@ from configuration import QuestionType as Qt
 import logger
 import json
 import configuration as config
+from chardet import detect
 
 import random
 
 # FIXME !WORK IN PROGRESS!
 
 answers_dict = None
+
 
 def get_question_result_from_db(team_id, question_id, question_type):
     global answers_dict
@@ -18,6 +20,7 @@ def get_question_result_from_db(team_id, question_id, question_type):
     logger.log_info("got question answers from db", team_id, question_id)
     
     return answers_dict[str(question_id)]
+
 
 def score(team_id, question_id, phase_id, dataset_number, question_type, submitted_answer):
     logger.log_info("judging", team_id, question_id, question_type)
@@ -35,18 +38,20 @@ def score_multiple_choice(team_id, submitted_answer, real_answer):
 
 
 def score_file_upload(team_id, submitted_answer, real_answer):
-    try:
-        with open(submitted_answer, mode='r') as read_file:
-            submitted_categories = read_file.readlines()
-    except:
-        logger.log_error('failed to open file for team_id {}'.format(team_id))
-        return
+    with open(submitted_answer, mode='rb') as binary_read_file:
+        file_encoding = detect(binary_read_file.read())
+
+    with open(submitted_answer, encoding=file_encoding['encoding']) as read_file:
+        submitted_categories = read_file.readlines()
 
     tidy_submitted_categories = []
     for line in submitted_categories:
         tidy_submitted_categories.append(line.strip().lower())
 
-    with open(real_answer, mode='r') as read_file:
+    with open(real_answer, mode='rb') as binary_read_file:
+        answer_file_encoding = detect(binary_read_file.read())
+
+    with open(real_answer, encoding=answer_file_encoding['encoding']) as read_file:
         real_categories = read_file.readlines()
 
     tidy_real_categories = []
