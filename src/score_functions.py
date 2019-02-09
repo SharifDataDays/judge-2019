@@ -8,6 +8,18 @@ import random
 
 # FIXME !WORK IN PROGRESS!
 
+CITY_NAME_TRANSLATIONS = {
+    'Tehran': 'تهران',
+    'Mashhad': 'مشهد', 
+    'Karaj': 'کرج',
+    'Qom': 'قم',
+    'Isfahan': 'اصفهان',
+    'Shiraz': 'شیراز',
+    'Tabriz': 'تبریز',
+    'Ahvaz': 'اهواز',
+    'Kermanshah': 'کرمانشاه'
+}
+
 answers_dict = None
 
 def get_question_result_from_db(team_id, question_id, question_type):
@@ -72,6 +84,10 @@ def score_single_answer(team_id, submitted_answer, real_answer):
     real_answer = real_answer.strip().lower()
     print('\033[92m"{}" "{}"\033[0m'.format(submitted_answer, real_answer))
     result = 0.0
+
+    if submitted_answer in CITY_NAME_TRANSLATIONS:
+        submitted_answer = CITY_NAME_TRANSLATIONS[submitted_answer]
+
     if submitted_answer == real_answer:
         result = 1.0
 
