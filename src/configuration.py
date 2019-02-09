@@ -6,7 +6,7 @@ TEST_TIMEOUT_S = 60
 RUN_TIMEOUT_S = 60
 ACCESS_TIMEOUT_S = 5
 
-REPORT_SERVER_HOST = 'datadays.ir'
+REPORT_SERVER_HOST = 'https://datadays.ir'
 REPORT_SERVER_PORT = 80
 REPORT_SERVER_PATH = 'dsvfghjsehtdryjfuihlxdfgchjkl/'
 

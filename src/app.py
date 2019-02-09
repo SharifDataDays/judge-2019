@@ -14,14 +14,8 @@ app = Flask(__name__)
 
 @app.route('/', methods=['GET', 'POST'])
 def handle_request():
-    print("AAAAAAAAAAAAAAAAAAA")
-    print(request.__dict__)
-    print("BBBBBBBBBBBBBBBBBBB")
-    print(request.get_json())
-    print("CCCCCCCCCCCCCCCCCCC")
-    print(str(request.get_json()))
-
     request_data = request.get_json()
+    logger.log_info('received_request', request_data)
 
     for field in config.JUDGE_MANDATORY_REQUEST_FIELDS:
         if field not in request_data:
@@ -100,7 +94,7 @@ def report_test_results(team_id, phase_id, trial_id, dataset_number, question_sc
     logger.log_log(judge_report)
 
     requests.post(
-        'https://{}/{}'.format(config.REPORT_SERVER_HOST, config.REPORT_SERVER_PATH),
+        '{}/{}'.format(config.REPORT_SERVER_HOST, config.REPORT_SERVER_PATH),
         json=judge_report)
 
 

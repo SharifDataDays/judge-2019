@@ -95,6 +95,8 @@ def score_multiple_answer(team_id, submitted_answer, real_answer):
     real_answer_count = len(real_answer)
     correct_answer_count = len(set(real_answer).intersection(set(submitted_answer)))
 
+    logger.log_info('score_multiple_answer', submitted_answer, real_answer, correct_answer_count)
+
     return correct_answer_count / real_answer_count
 
 
