@@ -6,7 +6,7 @@ TEST_TIMEOUT_S = 60
 RUN_TIMEOUT_S = 60
 ACCESS_TIMEOUT_S = 5
 
-REPORT_SERVER_HOST = 'datadays.ir'
+REPORT_SERVER_HOST = 'https://datadays.ir'
 REPORT_SERVER_PORT = 80
 REPORT_SERVER_PATH = 'dsvfghjsehtdryjfuihlxdfgchjkl/'
 
@@ -15,6 +15,11 @@ SUBMISSION_MANDATORY_FIELDS = ['question_id', 'question_type', 'submitted_answer
 
 ANSWERS_FILE_PATH = '/home/datadays/answer_json.json'
 
+try:
+#    from local_conf import *
+    print('local_conf imported {}'.format(REPORT_SERVER_HOST))
+except:
+    print('local_conf not found')
 
 class QuestionType(Enum):
     MULTIPLE_CHOICE = "multiple_choice"

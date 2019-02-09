@@ -22,6 +22,7 @@ CITY_NAME_TRANSLATIONS = {
 
 answers_dict = None
 
+
 def get_question_result_from_db(team_id, question_id, question_type):
     global answers_dict
     logger.log_info("getting question answers from db", team_id, question_id)
@@ -32,21 +33,27 @@ def get_question_result_from_db(team_id, question_id, question_type):
     
     return answers_dict[str(question_id)]
 
+
 def score(team_id, question_id, phase_id, dataset_number, question_type, submitted_answer):
-    logger.log_info("judging", team_id, question_id, question_type)
-    real_answer = get_question_result_from_db(team_id, question_id, question_type)
+    try:
+        logger.log_info("judging", team_id, question_id, question_type)
+        real_answer = get_question_result_from_db(team_id, question_id, question_type)
 
-    # submitted_answer and real_answer are strings retrieved from db and request without modification
-    ret = FUNCTION_MAP[question_type](team_id, submitted_answer, real_answer)
+        # submitted_answer and real_answer are strings retrieved from db and request without modification
+        ret = FUNCTION_MAP[question_type](team_id, submitted_answer, real_answer)
 
-    logger.log_info("Answer checked", team_id, question_id)
-    return ret
+        logger.log_info("Answer checked", team_id, question_id)
+        return ret
+    except:
+        logger.log_error("score_function_error", team_id, question_id, question_type)
+        return 0
+
 
 def score_multiple_choice(team_id, submitted_answer, real_answer):
     return score_single_answer(team_id, submitted_answer, real_answer)
 
-def score_file_upload(team_id, submitted_answer, real_answer):
 
+def score_file_upload(team_id, submitted_answer, real_answer):
     with open(submitted_answer, mode='rb') as binary_read_file:
         file_encoding = detect(binary_read_file.read())
 
@@ -103,6 +110,8 @@ def score_multiple_answer(team_id, submitted_answer, real_answer):
 
     real_answer_count = len(real_answer)
     correct_answer_count = len(set(real_answer).intersection(set(submitted_answer)))
+
+    logger.log_info('score_multiple_answer', submitted_answer, real_answer, correct_answer_count)
 
     return correct_answer_count / real_answer_count
 
