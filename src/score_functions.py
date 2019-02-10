@@ -192,10 +192,14 @@ def score_interval_number(team_id, submitted_answer, real_answer):
 
 def score_triple_cat_file_upload(team_id, submitted_answer, real_answer):
 
-   submitted_categories = [x[1] for x in pd.read_csv(submitted_answer, low_memory=False).iterrows()]
+    try:
+        submitted_categories = [x[1] for x in pd.read_csv(submitted_answer, low_memory=False).iterrows()]
+    except:
+        logger.log_warn("malformed csv file", team_id)
+        return (0.0, 0.0)
 
     if len(submitted_categories) < len(PHASE_2_ANSWERS):
-        print("not enough lines in submission", team_id)
+        logger.log_warn("not enough lines in submission", team_id)
         return (0.0, 0.0)
 
     score_1 = 0
