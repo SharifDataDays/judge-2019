@@ -11,14 +11,23 @@ import random
 
 CITY_NAME_TRANSLATIONS = {
     'Tehran': 'تهران',
-    'Mashhad': 'مشهد', 
+    'tehran': 'تهران',
+    'Mashhad': 'مشهد',
+    'mashhad': 'مشهد',
     'Karaj': 'کرج',
+    'karaj': 'کرج',
     'Qom': 'قم',
+    'qom': 'قم',
     'Isfahan': 'اصفهان',
+    'isfahan': 'اصفهان',
     'Shiraz': 'شیراز',
+    'shiraz': 'شیراز',
     'Tabriz': 'تبریز',
+    'tabriz': 'تبریز',
     'Ahvaz': 'اهواز',
-    'Kermanshah': 'کرمانشاه'
+    'ahvaz': 'اهواز',
+    'Kermanshah': 'کرمانشاه',
+    'kermanshah': 'کرمانشاه',
 }
 
 answers_dict = None
@@ -126,15 +135,25 @@ def score_multiple_answer(team_id, submitted_answer, real_answer):
     submitted_answer = submitted_answer.strip().split('$')
     submitted_answer = [x.strip().lower() for x in submitted_answer]
 
+    new_answers = []
+    for answer in submitted_answer:
+        if answer in CITY_NAME_TRANSLATIONS:
+            new_answers.append(CITY_NAME_TRANSLATIONS[answer])
+        else:
+            new_answers.append(answer)
+
+    submitted_answer = new_answers
+
     real_answer = real_answer.strip().split('$')
     real_answer = [x.strip().lower() for x in real_answer]
 
     real_answer_count = len(real_answer)
     correct_answer_count = len(set(real_answer).intersection(set(submitted_answer)))
 
-    logger.log_info('score_multiple_answer', submitted_answer, real_answer, correct_answer_count)
+    logger.log_info('score_multiple_answer', float(correct_answer_count / real_answer_count),
+                    submitted_answer, real_answer)
 
-    return correct_answer_count / real_answer_count
+    return correct_answer_count / 3
 
 
 
