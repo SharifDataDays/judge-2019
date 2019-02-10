@@ -1,4 +1,5 @@
-import sys, csv
+import sys
+import csv
 
 
 def extract_category():
@@ -17,7 +18,3 @@ def extract_category():
 
 if __name__ == "__main__":
     extract_category()
-    
-
-
-    
