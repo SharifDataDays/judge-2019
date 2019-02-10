@@ -3,6 +3,7 @@ import logger
 import json
 import configuration as config
 from chardet import detect
+import pandas as pd
 
 import random
 
@@ -21,6 +22,26 @@ CITY_NAME_TRANSLATIONS = {
 }
 
 answers_dict = None
+
+
+PHASE_2_ANSWERS_PATH = '<PHASE_2_ANSWERS_FILE_PATH_HERE>'
+PHASE_2_REV_ANS_MAP = {}
+
+SCORE_A1 = 0.2
+SCORE_A2 = 0.2
+SCORE_A3 = 0.2
+
+logger.log_info('loading phase 2 answers...')
+PHASE_2_ANSWERS = [x[1] for x in pd.read_csv(PHASE_2_ANSWERS_PATH, low_memory=False)[['cat1', 'cat2', 'cat3']].iterrows()]
+logger.log_info('loaded phase 2 answers...')
+logger.log_info('creating reverse map...')
+for answer in PHASE_2_ANSWERS:
+    if not pd.isna(answer['cat3']):
+        PHASE_2_REV_ANS_MAP[answer['cat3']] = [answer['cat1'], answer['cat2']]
+    else:
+        PHASE_2_REV_ANS_MAP[answer['cat2']] = [answer['cat1']]
+logger.log_info('created reverse map...')
+
 
 
 def get_question_result_from_db(team_id, question_id, question_type):
@@ -77,14 +98,14 @@ def score_file_upload(team_id, submitted_answer, real_answer):
     if len(tidy_real_categories) > len(tidy_submitted_categories):
         logger.log_warn("not enough lines in submission", team_id)
         return 0.0
-    else:
-        total_count = len(tidy_real_categories)
-        correct_count = 0
-        for i in range(total_count):
-            if tidy_real_categories[i] == tidy_submitted_categories[i]:
-                correct_count += 1
+    
+    total_count = len(tidy_real_categories)
+    correct_count = 0
+    for i in range(total_count):
+        if tidy_real_categories[i] == tidy_submitted_categories[i]:
+            correct_count += 1
 
-        return correct_count / total_count
+    return correct_count / total_count
 
 def score_single_answer(team_id, submitted_answer, real_answer):
     submitted_answer = submitted_answer.strip().lower()
@@ -159,17 +180,63 @@ def score_interval_number(team_id, submitted_answer, real_answer):
     return result
 
 
-def score_single_suffiient_answer(submitted_answer, real_answer):
-    pass
+def score_triple_cat_file_upload(team_id, submitted_answer, real_answer):
 
+    with open(submitted_answer, mode='rb') as binary_read_file:
+        file_encoding = detect(binary_read_file.read())
 
-def score_single_number_answer(submitted_answer, real_answer):
-    pass
+    with open(submitted_answer, encoding=file_encoding['encoding']) as read_file:
+        submitted_categories = read_file.readlines()
 
+    tidy_submitted_categories = []
+    for line in submitted_categories:
+        tidy_submitted_categories.append(line.strip().lower())
 
-def score_interval_number_answer(submitted_answer, real_answer):
-    pass
+    if len(tidy_submitted_categories) < len(PHASE_2_ANSWERS):
+        print("not enough lines in submission", team_id)
+        return (0.0, 0.0)
 
+    score_1 = 0
+    n_tot = len(PHASE_2_ANSWERS)
+
+    for i in range(n_tot//2):
+        if tidy_submitted_categories[i] not in PHASE_2_REV_ANS_MAP:
+            continue
+
+        score_1 += _score_cats(tidy_submitted_categories[i], PHASE_2_ANSWERS[i])
+
+    score_1 = score_1 / (n_tot//2)
+
+    score_2 = 0
+    for i in range(n_tot//2, n_tot):
+        if tidy_submitted_categories[i] not in PHASE_2_REV_ANS_MAP:
+            continue
+
+        score_2 += _score_cats(tidy_submitted_categories[i], PHASE_2_ANSWERS[i])
+
+    score_2 = score_2 / (n_tot - n_tot//2)
+
+    return (score_1, score_2)
+        
+        
+def _score_cats(submitted_cat, answer_cats):
+    score = 0
+    submission_cats = PHASE_2_REV_ANS_MAP[submitted_cat]
+
+    if submission_cats[0] == answer_cats['cat1']:
+        score += SCORE_A1
+
+    if len(submission_cats) == 3:
+        if submission_cats[1] == answer_cats['cat2']:
+            score += SCORE_A2
+        if submitted_cat == answer_cats['cat3']:
+            score += SCORE_A3
+    else:
+        if submitted_cat == answer_cats['cat2']:
+            score += SCORE_A2
+        score += SCORE_A3
+
+    return score
 
 FUNCTION_MAP = {
     Qt.MULTIPLE_CHOICE.value: score_multiple_choice,
@@ -179,4 +246,5 @@ FUNCTION_MAP = {
     Qt.SINGLE_SUFFICIENT_ANSWER.value: score_single_sufficient_answer,
     Qt.SINGLE_NUMBER.value: score_single_number,
     Qt.INTERVAL_NUMBER.value: score_interval_number,
+    Qt.TRIPLE_CAT_FILE_UPLOAD.value: score_triple_cat_file_upload,
 }

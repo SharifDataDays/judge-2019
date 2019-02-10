@@ -29,6 +29,7 @@ class QuestionType(Enum):
     SINGLE_SUFFICIENT_ANSWER = "single_sufficient_answer"
     SINGLE_NUMBER = "single_number"
     INTERVAL_NUMBER = "interval_number"
+    TRIPLE_CAT_FILE_UPLOAD = "triple_cat_file_upload"
 
     @classmethod
     def list_types(cls):
