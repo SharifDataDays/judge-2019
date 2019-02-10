@@ -47,8 +47,11 @@ logger.log_info('creating reverse map...')
 for answer in PHASE_2_ANSWERS:
     if not pd.isna(answer['cat3']):
         PHASE_2_REV_ANS_MAP[answer['cat3']] = [answer['cat1'], answer['cat2']]
-    else:
+    elif not pd.isna(answer['cat2']):
         PHASE_2_REV_ANS_MAP[answer['cat2']] = [answer['cat1']]
+    else:
+        PHASE_2_REV_ANS_MAP[answer['cat2']] = []
+
 logger.log_info('created reverse map...')
 
 
@@ -242,17 +245,23 @@ def _score_cats(submitted_cat, answer_cats):
     score = 0
     submission_cats = PHASE_2_REV_ANS_MAP[submitted_cat]
 
-    if submission_cats[0] == answer_cats['cat1']:
-        score += SCORE_A1
-
-    if len(submission_cats) == 3:
+    if len(submission_cats) == 2:
+        if submission_cats[0] == answer_cats['cat1']:
+            score += SCORE_A1
         if submission_cats[1] == answer_cats['cat2']:
             score += SCORE_A2
         if submitted_cat == answer_cats['cat3']:
             score += SCORE_A3
-    else:
+    elif len(submission_cats) == 1:
+        if submission_cats[0] == answer_cats['cat1']:
+            score += SCORE_A1
         if submitted_cat == answer_cats['cat2']:
             score += SCORE_A2
+        score += SCORE_A3
+    else:
+        if submitted_cat == answer_cats['cat1']:
+            score += SCORE_A1
+        score += SCORE_A2
         score += SCORE_A3
 
     return score
