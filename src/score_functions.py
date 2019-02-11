@@ -1,4 +1,4 @@
-from configuration import QuestionType as Qt
+from configuration import QuestionType as Qt, PHASE_2_ANSWERS_PATH
 import logger
 import json
 import configuration as config
@@ -33,7 +33,6 @@ CITY_NAME_TRANSLATIONS = {
 answers_dict = None
 
 
-PHASE_2_ANSWERS_PATH = '<PHASE_2_ANSWERS_FILE_PATH_HERE>'
 PHASE_2_REV_ANS_MAP = {}
 
 SCORE_A1 = 0.2
@@ -44,6 +43,7 @@ logger.log_info('loading phase 2 answers...')
 PHASE_2_ANSWERS = [x[1] for x in pd.read_csv(PHASE_2_ANSWERS_PATH, low_memory=False)[['cat1', 'cat2', 'cat3']].iterrows()]
 logger.log_info('loaded phase 2 answers...')
 logger.log_info('creating reverse map...')
+print(PHASE_2_ANSWERS)
 for answer in PHASE_2_ANSWERS:
     if not pd.isna(answer['cat3']):
         PHASE_2_REV_ANS_MAP[answer['cat3']] = [answer['cat1'], answer['cat2']]
@@ -53,7 +53,6 @@ for answer in PHASE_2_ANSWERS:
         PHASE_2_REV_ANS_MAP[answer['cat2']] = []
 
 logger.log_info('created reverse map...')
-
 
 
 def get_question_result_from_db(team_id, question_id, question_type):

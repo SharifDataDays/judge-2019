@@ -12,8 +12,16 @@ def extract_category():
 
     next(csv_read)
 
+    # written by mrtaalebi in most newbie style :)
     for row in csv_read:
-        write_csv.writerow(row[3:6])
+        cats = row[3:6]
+        new_cats = []
+        for cat in cats:
+            if cat == "":
+                new_cats.append("NONE")
+            else:
+                new_cats.append(cat)
+        write_csv.writerow(new_cats)
     
 
 if __name__ == "__main__":
