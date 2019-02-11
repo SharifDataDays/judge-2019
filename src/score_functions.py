@@ -32,9 +32,6 @@ CITY_NAME_TRANSLATIONS = {
 
 answers_dict = None
 
-
-PHASE_2_REV_ANS_MAP = {}
-
 SCORE_A1 = 0.2
 SCORE_A2 = 0.2
 SCORE_A3 = 0.2
@@ -42,18 +39,6 @@ SCORE_A3 = 0.2
 logger.log_info('loading phase 2 answers...')
 PHASE_2_ANSWERS = [x[1] for x in pd.read_csv(PHASE_2_ANSWERS_PATH, low_memory=False)[['cat1', 'cat2', 'cat3']].iterrows()]
 logger.log_info('loaded phase 2 answers...')
-logger.log_info('creating reverse map...')
-print(PHASE_2_ANSWERS)
-for answer in PHASE_2_ANSWERS:
-    if not pd.isna(answer['cat3']):
-        PHASE_2_REV_ANS_MAP[answer['cat3']] = [answer['cat1'], answer['cat2']]
-    elif not pd.isna(answer['cat2']):
-        PHASE_2_REV_ANS_MAP[answer['cat2']] = [answer['cat1']]
-    else:
-        PHASE_2_REV_ANS_MAP[answer['cat2']] = []
-
-logger.log_info('created reverse map...')
-
 
 def get_question_result_from_db(team_id, question_id, question_type):
     global answers_dict
@@ -203,65 +188,58 @@ def score_interval_number(team_id, submitted_answer, real_answer):
 
 def score_triple_cat_file_upload(team_id, submitted_answer, real_answer):
 
-    with open(submitted_answer, mode='rb') as binary_read_file:
-        file_encoding = detect(binary_read_file.read())
+    try:
+        submitted_categories = [x[1] for x in pd.read_csv(submitted_answer, low_memory=False).iterrows()]
+    except:
+        logger.log_warn("malformed csv file", team_id)
+        return (0.0, 0.0)
 
-    with open(submitted_answer, encoding=file_encoding['encoding']) as read_file:
-        submitted_categories = read_file.readlines()
-
-    tidy_submitted_categories = []
-    for line in submitted_categories:
-        tidy_submitted_categories.append(line.strip().lower())
-
-    if len(tidy_submitted_categories) < len(PHASE_2_ANSWERS):
-        print("not enough lines in submission", team_id)
+    if len(submitted_categories) < len(PHASE_2_ANSWERS):
+        logger.log_warn("not enough lines in submission", team_id)
         return (0.0, 0.0)
 
     score_1 = 0
     n_tot = len(PHASE_2_ANSWERS)
 
     for i in range(n_tot//2):
-        if tidy_submitted_categories[i] not in PHASE_2_REV_ANS_MAP:
-            continue
-
-        score_1 += _score_cats(tidy_submitted_categories[i], PHASE_2_ANSWERS[i])
+        score_1 += _score_cats(submitted_categories[i], PHASE_2_ANSWERS[i])
 
     score_1 = score_1 / (n_tot//2)
 
     score_2 = 0
     for i in range(n_tot//2, n_tot):
-        if tidy_submitted_categories[i] not in PHASE_2_REV_ANS_MAP:
-            continue
-
-        score_2 += _score_cats(tidy_submitted_categories[i], PHASE_2_ANSWERS[i])
+        score_2 += _score_cats(submitted_categories[i], PHASE_2_ANSWERS[i])
 
     score_2 = score_2 / (n_tot - n_tot//2)
 
     return (score_1, score_2)
         
         
-def _score_cats(submitted_cat, answer_cats):
+def _score_cats(submitted_cats, answer_cats):
     score = 0
-    submission_cats = PHASE_2_REV_ANS_MAP[submitted_cat]
 
-    if len(submission_cats) == 2:
-        if submission_cats[0] == answer_cats['cat1']:
-            score += SCORE_A1
-        if submission_cats[1] == answer_cats['cat2']:
-            score += SCORE_A2
-        if submitted_cat == answer_cats['cat3']:
-            score += SCORE_A3
-    elif len(submission_cats) == 1:
-        if submission_cats[0] == answer_cats['cat1']:
-            score += SCORE_A1
-        if submitted_cat == answer_cats['cat2']:
-            score += SCORE_A2
-        score += SCORE_A3
+    if submitted_cats['cat1'] == answer_cats['cat1']:
+        score += SCORE_A1
     else:
-        if submitted_cat == answer_cats['cat1']:
-            score += SCORE_A1
-        score += SCORE_A2
-        score += SCORE_A3
+        return score
+
+    if not pd.isna(answer_cats['cat2']):
+        if submitted_cats['cat2'] == answer_cats['cat2']:
+            score += SCORE_A2
+        else:
+            return score
+
+        if not pd.isna(answer_cats['cat3']):
+            if submitted_cats['cat3'] == answer_cats['cat3']:
+                score += SCORE_A3
+        else:
+            if pd.isna(submitted_cats['cat3']):
+                score += SCORE_A3
+    else:
+        if pd.isna(submitted_cats['cat2']):
+            score += SCORE_A2
+        if pd.isna(submitted_cats['cat3']):
+            score += SCORE_A3
 
     return score
 
