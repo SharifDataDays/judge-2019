@@ -32,13 +32,14 @@ CITY_NAME_TRANSLATIONS = {
 
 answers_dict = None
 
-SCORE_A1 = 0.2
-SCORE_A2 = 0.2
-SCORE_A3 = 0.2
+SCORE_A1 = 0.1
+SCORE_A2 = 0.3
+SCORE_A3 = 0.6
 
 logger.log_info('loading phase 2 answers...')
 PHASE_2_ANSWERS = [x[1] for x in pd.read_csv(PHASE_2_ANSWERS_PATH, low_memory=False)[['cat1', 'cat2', 'cat3']].iterrows()]
 logger.log_info('loaded phase 2 answers...')
+
 
 def get_question_result_from_db(team_id, question_id, question_type):
     global answers_dict
@@ -47,23 +48,30 @@ def get_question_result_from_db(team_id, question_id, question_type):
         with open(config.ANSWERS_FILE_PATH) as f:
             answers_dict = json.load(f)
     logger.log_info("got question answers from db", team_id, question_id)
-    
-    return answers_dict[str(question_id)]
+    try:
+        return answers_dict[str(question_id)]
+    except:
+        return None
 
 
 def score(team_id, question_id, phase_id, dataset_number, question_type, submitted_answer):
     try:
         logger.log_info("judging", team_id, question_id, question_type)
-        real_answer = get_question_result_from_db(team_id, question_id, question_type)
-
+        # real_answer = get_question_result_from_db(team_id, question_id, question_type)
         # submitted_answer and real_answer are strings retrieved from db and request without modification
+        real_answer = 0
+        logger.log_warn("fuck you", question_type, team_id, submitted_answer, real_answer)
+
         ret = FUNCTION_MAP[question_type](team_id, submitted_answer, real_answer)
 
         logger.log_info("Answer checked", team_id, question_id)
         return ret
     except:
         logger.log_error("score_function_error", team_id, question_id, question_type)
-        return 0
+        if question_type == 'triple_cat_file_upload':
+            return 0, 0
+        else:
+            return 0
 
 
 def score_multiple_choice(team_id, submitted_answer, real_answer):
@@ -103,6 +111,7 @@ def score_file_upload(team_id, submitted_answer, real_answer):
 
     return correct_count / total_count
 
+
 def score_single_answer(team_id, submitted_answer, real_answer):
     submitted_answer = submitted_answer.strip().lower()
     real_answer = real_answer.strip().lower()
@@ -141,7 +150,6 @@ def score_multiple_answer(team_id, submitted_answer, real_answer):
                     submitted_answer, real_answer)
 
     return correct_answer_count / 3
-
 
 
 def score_single_sufficient_answer(team_id, submitted_answer, real_answer):
@@ -192,11 +200,11 @@ def score_triple_cat_file_upload(team_id, submitted_answer, real_answer):
         submitted_categories = [x[1] for x in pd.read_csv(submitted_answer, low_memory=False).iterrows()]
     except:
         logger.log_warn("malformed csv file", team_id)
-        return (0.0, 0.0)
+        return 0.0, 0.0
 
     if len(submitted_categories) < len(PHASE_2_ANSWERS):
         logger.log_warn("not enough lines in submission", team_id)
-        return (0.0, 0.0)
+        return 0.0, 0.0
 
     score_1 = 0
     n_tot = len(PHASE_2_ANSWERS)
@@ -212,7 +220,7 @@ def score_triple_cat_file_upload(team_id, submitted_answer, real_answer):
 
     score_2 = score_2 / (n_tot - n_tot//2)
 
-    return (score_1, score_2)
+    return score_1, score_2
         
         
 def _score_cats(submitted_cats, answer_cats):
@@ -227,6 +235,7 @@ def _score_cats(submitted_cats, answer_cats):
         if submitted_cats['cat2'] == answer_cats['cat2']:
             score += SCORE_A2
         else:
+
             return score
 
         if not pd.isna(answer_cats['cat3']):
@@ -242,6 +251,7 @@ def _score_cats(submitted_cats, answer_cats):
             score += SCORE_A3
 
     return score
+
 
 FUNCTION_MAP = {
     Qt.MULTIPLE_CHOICE.value: score_multiple_choice,

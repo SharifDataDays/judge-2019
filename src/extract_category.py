@@ -12,14 +12,12 @@ def extract_category():
 
     next(csv_read)
 
+    write_csv.writerow(['cat1,cat2,cat3'])
     # written by mrtaalebi in most newbie style :)
     for row in csv_read:
         cats = row[3:6]
         new_cats = []
         for cat in cats:
-            if cat == "":
-                new_cats.append("NONE")
-            else:
                 new_cats.append(cat)
         write_csv.writerow(new_cats)
     
