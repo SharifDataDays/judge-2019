@@ -69,7 +69,7 @@ def score(team_id, question_id, phase_id, dataset_number, question_type, submitt
     except:
         logger.log_error("score_function_error", team_id, question_id, question_type)
         if question_type == 'triple_cat_file_upload':
-            return 0, 0
+            return [0, 0]
         else:
             return 0
 
@@ -200,11 +200,11 @@ def score_triple_cat_file_upload(team_id, submitted_answer, real_answer):
         submitted_categories = [x[1] for x in pd.read_csv(submitted_answer, low_memory=False).iterrows()]
     except:
         logger.log_warn("malformed csv file", team_id)
-        return 0.0, 0.0
+        return [0.0, 0.0]
 
     if len(submitted_categories) < len(PHASE_2_ANSWERS):
         logger.log_warn("not enough lines in submission", team_id)
-        return 0.0, 0.0
+        return [0.0, 0.0]
 
     score_1 = 0
     n_tot = len(PHASE_2_ANSWERS)
@@ -220,7 +220,7 @@ def score_triple_cat_file_upload(team_id, submitted_answer, real_answer):
 
     score_2 = score_2 / (n_tot - n_tot//2)
 
-    return score_1, score_2
+    return [score_1, score_2]
         
         
 def _score_cats(submitted_cats, answer_cats):
