@@ -35,9 +35,9 @@ answers_dict = None
 
 PHASE_2_ANSWERS_PATH = '<PHASE_2_ANSWERS_FILE_PATH_HERE>'
 
-SCORE_A1 = 0.2
-SCORE_A2 = 0.2
-SCORE_A3 = 0.2
+SCORE_A1 = 0.1
+SCORE_A2 = 0.3
+SCORE_A3 = 0.6
 
 logger.log_info('loading phase 2 answers...')
 PHASE_2_ANSWERS = [x[1] for x in pd.read_csv(PHASE_2_ANSWERS_PATH, low_memory=False)[['cat1', 'cat2', 'cat3']].iterrows()]
