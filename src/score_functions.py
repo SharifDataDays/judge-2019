@@ -57,10 +57,10 @@ def get_question_result_from_db(team_id, question_id, question_type):
 def score(team_id, question_id, phase_id, dataset_number, question_type, submitted_answer):
     try:
         logger.log_info("judging", team_id, question_id, question_type)
-        # real_answer = get_question_result_from_db(team_id, question_id, question_type)
-        # submitted_answer and real_answer are strings retrieved from db and request without modification
-        real_answer = 0
-        logger.log_warn("fuck you", question_type, team_id, submitted_answer, real_answer)
+        if question_type != 'triple_cat_file_upload':
+            real_answer = get_question_result_from_db(team_id, question_id, question_type)
+        else:
+            real_answer = 0
 
         ret = FUNCTION_MAP[question_type](team_id, submitted_answer, real_answer)
 
