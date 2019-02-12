@@ -1,4 +1,5 @@
-import sys, csv
+import sys
+import csv
 
 
 def extract_category():
@@ -11,13 +12,15 @@ def extract_category():
 
     next(csv_read)
 
+    write_csv.writerow(['cat1,cat2,cat3'])
+    # written by mrtaalebi in most newbie style :)
     for row in csv_read:
-        write_csv.writerow(row[3:6])
+        cats = row[3:6]
+        new_cats = []
+        for cat in cats:
+                new_cats.append(cat)
+        write_csv.writerow(new_cats)
     
 
 if __name__ == "__main__":
     extract_category()
-    
-
-
-    
