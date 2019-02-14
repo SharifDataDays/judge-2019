@@ -32,9 +32,9 @@ CITY_NAME_TRANSLATIONS = {
 
 answers_dict = None
 
-SCORE_A1 = 0.1
-SCORE_A2 = 0.3
-SCORE_A3 = 0.6
+SCORE_A1 = 0.2
+SCORE_A2 = 0.0
+SCORE_A3 = 0.8
 
 logger.log_info('loading phase 2 answers...')
 PHASE_2_ANSWERS = [x[1] for x in pd.read_csv(PHASE_2_ANSWERS_PATH, low_memory=False)[['cat1', 'cat2', 'cat3']].iterrows()]
@@ -212,13 +212,13 @@ def score_triple_cat_file_upload(team_id, submitted_answer, real_answer):
     for i in range(n_tot//2):
         score_1 += _score_cats(submitted_categories[i], PHASE_2_ANSWERS[i])
 
-    score_1 = score_1 / (n_tot//2)
+    score_1 = score_1 / (n_tot//2) / 0.8732799999997414
 
     score_2 = 0
     for i in range(n_tot//2, n_tot):
         score_2 += _score_cats(submitted_categories[i], PHASE_2_ANSWERS[i])
 
-    score_2 = score_2 / (n_tot - n_tot//2)
+    score_2 = score_2 / (n_tot - n_tot//2) / 0.8737679999997485
 
     return [score_1, score_2]
         
@@ -228,29 +228,38 @@ def _score_cats(submitted_cats, answer_cats):
 
     if submitted_cats['cat1'] == answer_cats['cat1']:
         score += SCORE_A1
+        if submitted_cats['cat2'] == answer_cats['cat2']:
+            score += SCORE_A2
+            if submitted_cats['cat3'] == answer_cats['cat3']:
+                score += SCORE_A3
+                return score
+            else:
+                return score
+        else:
+            return score
     else:
         return score
 
-    if not pd.isna(answer_cats['cat2']):
-        if submitted_cats['cat2'] == answer_cats['cat2']:
-            score += SCORE_A2
-        else:
 
-            return score
-
-        if not pd.isna(answer_cats['cat3']):
-            if submitted_cats['cat3'] == answer_cats['cat3']:
-                score += SCORE_A3
-        else:
-            if pd.isna(submitted_cats['cat3']):
-                score += SCORE_A3
-    else:
-        if pd.isna(submitted_cats['cat2']):
-            score += SCORE_A2
-        if pd.isna(submitted_cats['cat3']):
-            score += SCORE_A3
-
-    return score
+#    if not pd.isna(answer_cats['cat2']):
+#        if submitted_cats['cat2'] == answer_cats['cat2']:
+#            score += SCORE_A2
+#        else:
+#            return score
+#
+#        if not pd.isna(answer_cats['cat3']):
+#            if submitted_cats['cat3'] == answer_cats['cat3']:
+#                score += SCORE_A3
+#        else:
+#            if pd.isna(submitted_cats['cat3']):
+#                score += SCORE_A3
+#    else:
+#        if pd.isna(submitted_cats['cat2']):
+#            score += SCORE_A2
+#        if pd.isna(submitted_cats['cat3']):
+#            score += SCORE_A3
+#
+#    return score
 
 
 FUNCTION_MAP = {
