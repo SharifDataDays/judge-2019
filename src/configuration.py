@@ -15,7 +15,8 @@ SUBMISSION_MANDATORY_FIELDS = ['question_id', 'question_type', 'submitted_answer
 
 ANSWERS_FILE_PATH = '/home/datadays/answer_json.json'
 
-PHASE_2_ANSWERS_PATH = '/home/datadays/cats.csv'
+PHASE_2_ANSWERS_PATH = '/home/datadays/Y.csv'
+
 
 class QuestionType(Enum):
     MULTIPLE_CHOICE = "multiple_choice"
