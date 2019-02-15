@@ -33,8 +33,8 @@ CITY_NAME_TRANSLATIONS = {
 answers_dict = None
 
 SCORE_A1 = 0.1
-SCORE_A2 = 0.3
-SCORE_A3 = 0.6
+SCORE_A2 = 0.0
+SCORE_A3 = 0.9
 
 logger.log_info('loading phase 2 answers...')
 PHASE_2_ANSWERS = [x[1] for x in pd.read_csv(PHASE_2_ANSWERS_PATH, low_memory=False)[['cat1', 'cat2', 'cat3']].iterrows()]
