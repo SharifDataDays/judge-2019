@@ -4,10 +4,11 @@ import json
 import configuration as config
 from chardet import detect
 import pandas as pd
+import numpy as np
 
 import random
 
-# FIXME !WORK IN PROGRESS!
+PHASE_3_ANSWERS_PATH = '<phase 3 answers csv file path here>'
 
 CITY_NAME_TRANSLATIONS = {
     'Tehran': 'تهران',
@@ -30,6 +31,11 @@ CITY_NAME_TRANSLATIONS = {
     'kermanshah': 'کرمانشاه',
 }
 
+def boolean_value_cast(in_str):
+    if in_str.strip().lower() == 'true':
+        return True
+    return False
+
 answers_dict = None
 
 SCORE_A1 = 0.1
@@ -39,6 +45,19 @@ SCORE_A3 = 0.6
 logger.log_info('loading phase 2 answers...')
 PHASE_2_ANSWERS = [x[1] for x in pd.read_csv(PHASE_2_ANSWERS_PATH, low_memory=False)[['cat1', 'cat2', 'cat3']].iterrows()]
 logger.log_info('loaded phase 2 answers...')
+
+logger.log_info('loading phase 3 answers...')
+
+_tmp = pd.read_csv(PHASE_3_ANSWERS_PATH, low_memory=False)
+_tmp.columns = ['answer', 'score']
+_tmp['answer'] = _tmp['answer'].apply(boolean_value_cast)
+
+PHASE_3_ANSWERS = [x[1] for x in _tmp.iterrows()]
+PHASE_3_TOT_SCORE = np.array([float(x['score']) for x in PHASE_3_ANSWERS]).sum()
+logger.log_info('loaded phase 3 answers...')
+
+
+
 
 
 def get_question_result_from_db(team_id, question_id, question_type):
@@ -252,6 +271,27 @@ def _score_cats(submitted_cats, answer_cats):
 
     return score
 
+def score_boolean_file_upload(team_id, submission_path, _):
+    try:
+    
+        submission = pd.read_csv(submission_path, low_memory=False)
+        submission.columns = ['answer']
+        submission['answer'] = submission['answer'].apply(boolean_value_cast)
+    except:
+        logger.log_warn("malformed csv file", team_id)
+        return 0.0
+
+    if len(submission) < len(PHASE_3_ANSWERS):
+        logger.log_warn("not enough lines in submission", team_id)
+        return 0.0
+
+    score = 0.0
+    for i in range(len(PHASE_3_ANSWERS)):
+        if submission.iloc[i]['answer'] == PHASE_3_ANSWERS[i]['answer']:
+            score += PHASE_3_ANSWERS[i]['score']
+
+    return score / PHASE_3_TOT_SCORE
+
 
 FUNCTION_MAP = {
     Qt.MULTIPLE_CHOICE.value: score_multiple_choice,
@@ -262,4 +302,5 @@ FUNCTION_MAP = {
     Qt.SINGLE_NUMBER.value: score_single_number,
     Qt.INTERVAL_NUMBER.value: score_interval_number,
     Qt.TRIPLE_CAT_FILE_UPLOAD.value: score_triple_cat_file_upload,
+    Qt.BOOLEAN_FILE_UPLOAD.value: score_boolean_file_upload,
 }
