@@ -273,7 +273,6 @@ def _score_cats(submitted_cats, answer_cats):
 
 def score_boolean_file_upload(team_id, submission_path, _):
     try:
-    
         submission = pd.read_csv(submission_path, low_memory=False)
         submission.columns = ['answer']
         submission['answer'] = submission['answer'].apply(boolean_value_cast)
