@@ -39,8 +39,8 @@ def boolean_value_cast(in_str):
 answers_dict = None
 
 SCORE_A1 = 0.1
-SCORE_A2 = 0.3
-SCORE_A3 = 0.6
+SCORE_A2 = 0.0
+SCORE_A3 = 0.9
 
 logger.log_info('loading phase 2 answers...')
 PHASE_2_ANSWERS = [x[1] for x in pd.read_csv(PHASE_2_ANSWERS_PATH, low_memory=False)[['cat1', 'cat2', 'cat3']].iterrows()]
@@ -76,10 +76,10 @@ def get_question_result_from_db(team_id, question_id, question_type):
 def score(team_id, question_id, phase_id, dataset_number, question_type, submitted_answer):
     try:
         logger.log_info("judging", team_id, question_id, question_type)
-        # real_answer = get_question_result_from_db(team_id, question_id, question_type)
-        # submitted_answer and real_answer are strings retrieved from db and request without modification
-        real_answer = 0
-        logger.log_warn("fuck you", question_type, team_id, submitted_answer, real_answer)
+        if question_type != 'triple_cat_file_upload':
+            real_answer = get_question_result_from_db(team_id, question_id, question_type)
+        else:
+            real_answer = 0
 
         ret = FUNCTION_MAP[question_type](team_id, submitted_answer, real_answer)
 
@@ -88,7 +88,7 @@ def score(team_id, question_id, phase_id, dataset_number, question_type, submitt
     except:
         logger.log_error("score_function_error", team_id, question_id, question_type)
         if question_type == 'triple_cat_file_upload':
-            return 0, 0
+            return [0, 0]
         else:
             return 0
 
@@ -219,11 +219,11 @@ def score_triple_cat_file_upload(team_id, submitted_answer, real_answer):
         submitted_categories = [x[1] for x in pd.read_csv(submitted_answer, low_memory=False).iterrows()]
     except:
         logger.log_warn("malformed csv file", team_id)
-        return 0.0, 0.0
+        return [0.0, 0.0]
 
     if len(submitted_categories) < len(PHASE_2_ANSWERS):
         logger.log_warn("not enough lines in submission", team_id)
-        return 0.0, 0.0
+        return [0.0, 0.0]
 
     score_1 = 0
     n_tot = len(PHASE_2_ANSWERS)
@@ -231,15 +231,15 @@ def score_triple_cat_file_upload(team_id, submitted_answer, real_answer):
     for i in range(n_tot//2):
         score_1 += _score_cats(submitted_categories[i], PHASE_2_ANSWERS[i])
 
-    score_1 = score_1 / (n_tot//2)
+    score_1 = score_1 / (n_tot//2) / 0.8732799999997414
 
     score_2 = 0
     for i in range(n_tot//2, n_tot):
         score_2 += _score_cats(submitted_categories[i], PHASE_2_ANSWERS[i])
 
-    score_2 = score_2 / (n_tot - n_tot//2)
+    score_2 = score_2 / (n_tot - n_tot//2) / 0.8737679999997485
 
-    return score_1, score_2
+    return [score_1, score_2]
         
         
 def _score_cats(submitted_cats, answer_cats):
@@ -247,29 +247,38 @@ def _score_cats(submitted_cats, answer_cats):
 
     if submitted_cats['cat1'] == answer_cats['cat1']:
         score += SCORE_A1
+        if submitted_cats['cat2'] == answer_cats['cat2']:
+            score += SCORE_A2
+            if submitted_cats['cat3'] == answer_cats['cat3']:
+                score += SCORE_A3
+                return score
+            else:
+                return score
+        else:
+            return score
     else:
         return score
 
-    if not pd.isna(answer_cats['cat2']):
-        if submitted_cats['cat2'] == answer_cats['cat2']:
-            score += SCORE_A2
-        else:
 
-            return score
-
-        if not pd.isna(answer_cats['cat3']):
-            if submitted_cats['cat3'] == answer_cats['cat3']:
-                score += SCORE_A3
-        else:
-            if pd.isna(submitted_cats['cat3']):
-                score += SCORE_A3
-    else:
-        if pd.isna(submitted_cats['cat2']):
-            score += SCORE_A2
-        if pd.isna(submitted_cats['cat3']):
-            score += SCORE_A3
-
-    return score
+#    if not pd.isna(answer_cats['cat2']):
+#        if submitted_cats['cat2'] == answer_cats['cat2']:
+#            score += SCORE_A2
+#        else:
+#            return score
+#
+#        if not pd.isna(answer_cats['cat3']):
+#            if submitted_cats['cat3'] == answer_cats['cat3']:
+#                score += SCORE_A3
+#        else:
+#            if pd.isna(submitted_cats['cat3']):
+#                score += SCORE_A3
+#    else:
+#        if pd.isna(submitted_cats['cat2']):
+#            score += SCORE_A2
+#        if pd.isna(submitted_cats['cat3']):
+#            score += SCORE_A3
+#
+#    return score
 
 def score_boolean_file_upload(team_id, submission_path, _):
     try:
