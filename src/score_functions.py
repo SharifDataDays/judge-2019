@@ -8,7 +8,7 @@ import numpy as np
 
 import random
 
-PHASE_3_ANSWERS_PATH = '<phase 3 answers csv file path here>'
+PHASE_3_ANSWERS_PATH = '/home/datadays/y3.csv'
 
 CITY_NAME_TRANSLATIONS = {
     'Tehran': 'تهران',
@@ -32,6 +32,7 @@ CITY_NAME_TRANSLATIONS = {
 }
 
 def boolean_value_cast(in_str):
+    return in_str
     if in_str.strip().lower() == 'true':
         return True
     return False
@@ -49,8 +50,8 @@ logger.log_info('loaded phase 2 answers...')
 logger.log_info('loading phase 3 answers...')
 
 _tmp = pd.read_csv(PHASE_3_ANSWERS_PATH, low_memory=False)
-_tmp.columns = ['answer', 'score']
-_tmp['answer'] = _tmp['answer'].apply(boolean_value_cast)
+_tmp.columns = ['id', 'score', 'label']
+_tmp['label'] = _tmp['label'].apply(boolean_value_cast)
 
 PHASE_3_ANSWERS = [x[1] for x in _tmp.iterrows()]
 PHASE_3_TOT_SCORE = np.array([float(x['score']) for x in PHASE_3_ANSWERS]).sum()
@@ -283,8 +284,8 @@ def _score_cats(submitted_cats, answer_cats):
 def score_boolean_file_upload(team_id, submission_path, _):
     try:
         submission = pd.read_csv(submission_path, low_memory=False)
-        submission.columns = ['answer']
-        submission['answer'] = submission['answer'].apply(boolean_value_cast)
+#        submission.columns = ['label']
+        submission['label'] = submission['label'].apply(boolean_value_cast)
     except:
         logger.log_warn("malformed csv file", team_id)
         return 0.0
@@ -295,7 +296,7 @@ def score_boolean_file_upload(team_id, submission_path, _):
 
     score = 0.0
     for i in range(len(PHASE_3_ANSWERS)):
-        if submission.iloc[i]['answer'] == PHASE_3_ANSWERS[i]['answer']:
+        if submission.iloc[i]['label'] == PHASE_3_ANSWERS[i]['label']:
             score += PHASE_3_ANSWERS[i]['score']
 
     return score / PHASE_3_TOT_SCORE
